@@ -8,19 +8,29 @@ import tensorflow_model_analysis as tfma
 import tfx
 from absl import app, flags, logging
 from tfx import components
+from tfx.dsl.component.experimental.annotations import InputArtifact
+from tfx.dsl.component.experimental.decorators import component as component_decorator
 from tfx.orchestration import pipeline
 from tfx.orchestration.local.local_dag_runner import LocalDagRunner
 from tfx.proto import example_gen_pb2, trainer_pb2
+from tfx.types import standard_artifacts
 
 FLAGS = flags.FLAGS
 flags.DEFINE_string("pipeline_name", "mnist_pipeline", help="name of this pipeline")
 flags.DEFINE_string("pipeline_root", "./pipeline_root", help="root directory for this pipeline")
 flags.DEFINE_string("pipeline_metadata", "./pipeline_root/metadata.sqlite", help="metadata path for this pipeline")
 flags.DEFINE_string("mnist_base_path", os.path.join(os.getenv("HOME"), "tensorflow_datasets", "mnist", "3.0.1"), help="name of this pipeline")
+flags.DEFINE_boolean("with_partial_run", False, help="whether to run with partial pipeline run feature")
+flags.DEFINE_string("from_node_id", "my_custom_component", help="component id for partial pipeline run")
 
 
 def main(_):
-    LocalDagRunner().run(_create_pipeline())
+    LocalDagRunner().run(
+        _create_pipeline(),
+        # Related code
+        # https://github.com/tensorflow/tfx/blob/a0ce58d8a9897291c5754fb384abe41222415e35/tfx/orchestration/pipeline.py#L73
+        run_options=(pipeline.RunOptions(from_nodes=[FLAGS.from_node_id]) if FLAGS.with_partial_run else None),
+    )
 
 
 def _create_pipeline() -> pipeline.Pipeline:
@@ -83,10 +93,12 @@ def _create_pipeline() -> pipeline.Pipeline:
     # Uses TFMA to compute the evaluation statistics over features of a model.
     evaluator = components.Evaluator(examples=example_gen.outputs["examples"], model=trainer.outputs["model"], eval_config=eval_config)
 
+    # define my custom component
+    my_custom_component = MyCustomComponent(evaluation=evaluator.outputs["evaluation"]).with_id("my_custom_component")
+
     return pipeline.Pipeline(
         pipeline_name=FLAGS.pipeline_name,
         pipeline_root=FLAGS.pipeline_root,
-        enable_cache=True,
         components=[
             example_gen,
             statistics_gen,
@@ -95,9 +107,17 @@ def _create_pipeline() -> pipeline.Pipeline:
             transform,
             trainer,
             evaluator,
+            my_custom_component,
         ],
         metadata_connection_config=tfx.orchestration.metadata.sqlite_metadata_connection_config(FLAGS.pipeline_metadata),
     )
+
+
+@component_decorator
+def MyCustomComponent(evaluation: InputArtifact[standard_artifacts.ModelEvaluation]):
+    logging.info("Running Custom Component...")
+    logging.info(f"evaluation results: {evaluation}")
+    return {}
 
 
 if __name__ == "__main__":
