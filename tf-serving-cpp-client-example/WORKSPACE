@@ -39,10 +39,6 @@ load("@org_tensorflow//tensorflow:workspace0.bzl", "workspace")
 
 workspace()
 
-load("@rules_pkg//:deps.bzl", "rules_pkg_dependencies")
-
-rules_pkg_dependencies()
-
 http_archive(
     name = "com_github_bazelbuild_buildtools",
     sha256 = "ae34c344514e08c23e90da0e2d6cb700fcd28e80c02e23e4d5715dddcb42f7b3",
