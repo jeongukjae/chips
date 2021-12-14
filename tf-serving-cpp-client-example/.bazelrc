@@ -1,0 +1,2 @@
+build --verbose_failures=true
+build --experimental_repo_remote_exec
