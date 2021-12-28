@@ -52,6 +52,7 @@ rules_proto_toolchains()
 http_archive(
     name = "com_github_jeongukjae_tfs_proto",
     build_file = "//third_party/tfs_api:BUILD.bzl",
-    strip_prefix = "tfs-proto-a05370a1ece1c251c922ee5c4e9ef1464d473253",
-    url = "https://github.com/jeongukjae/tfs-proto/archive/a05370a1ece1c251c922ee5c4e9ef1464d473253.tar.gz",
+    sha256 = "a8b3dca4be1f2df19c2ee3884a152b78c0d2e99bf5a7ec976bdb11ed2591c23c",
+    strip_prefix = "tensorflow-serving-apis-proto-2.7.0",
+    url = "https://github.com/jeongukjae/tensorflow-serving-apis-proto/archive/2.7.0.tar.gz",
 )
