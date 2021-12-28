@@ -2,6 +2,8 @@
 
 Exmaple code to import tensorflow serving's `PredictService` using Bazel.
 
+I stored all required protobuf files in [this repository](https://github.com/jeongukjae/tensorflow-serving-apis-proto), and this example uses it. If you find a better way to import the required proto files, please let me know.
+
 ## Run
 
 ### Set up TF serving server
