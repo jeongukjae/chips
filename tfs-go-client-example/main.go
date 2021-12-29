@@ -8,8 +8,7 @@ import (
 
 	"google.golang.org/grpc"
 
-	tfs_api_pb "tensorflow_serving/apis"
-
+	tfs_api_pb "github.com/tensorflow/serving/tensorflow_serving/apis"
 	tf_framework "github.com/tensorflow/tensorflow/tensorflow/go/core/framework"
 )
 
